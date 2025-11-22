@@ -22,6 +22,4 @@ databaseChangeLog:
                   type: varchar(3)
                   constraints:
                     nullable: false
-        - sql:
-            sql: "ALTER TABLE account ADD CONSTRAINT currency_check CHECK (currency IN ('USD', 'GBP', 'EUR'))"
 

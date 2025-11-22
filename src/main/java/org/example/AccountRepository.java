@@ -4,26 +4,24 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
+import static org.example.jooq.Tables.ACCOUNT;
 
 @Repository
 public class AccountRepository {
-    
+
     private final DSLContext dsl;
-    
+
     public AccountRepository(DSLContext dsl) {
         this.dsl = dsl;
     }
-    
+
     public Account save(Account account) {
-        dsl.insertInto(table("account"))
+        dsl.insertInto(ACCOUNT)
             .columns(
-                field("id"),
-                field("balance"),
-                field("currency")
+                ACCOUNT.ID,
+                ACCOUNT.BALANCE,
+                ACCOUNT.CURRENCY
             )
             .values(
                 account.id(),
@@ -31,17 +29,17 @@ public class AccountRepository {
                 account.currency()
             )
             .execute();
-        
+
         return account;
     }
-    
+
     public List<Account> findAll() {
         return dsl.select(
-                field("id", UUID.class),
-                field("balance", Long.class),
-                field("currency", String.class)
+                ACCOUNT.ID,
+                ACCOUNT.BALANCE,
+                ACCOUNT.CURRENCY
             )
-            .from(table("account"))
+            .from(ACCOUNT)
             .fetch(record -> new Account(
                 record.value1(),
                 record.value2(),

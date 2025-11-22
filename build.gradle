@@ -37,21 +37,46 @@ jooq {
             generationTool {
                 jdbc {
                     driver = 'org.testcontainers.jdbc.ContainerDatabaseDriver'
-                    url = 'jdbc:tc:postgresql:16:///testdb?TC_INITSCRIPT=file:src/test/resources/init-db.sql'
+                    url = 'jdbc:tc:postgresql:16:///testdb'
                     user = 'test'
                     password = 'test'
                 }
                 generator {
                     name = 'org.jooq.codegen.DefaultGenerator'
                     database {
-                        name = 'org.jooq.meta.postgres.PostgresDatabase'
-                        inputSchema = 'public'
-                        includes = '.*'
-                        excludes = 'databasechangelog.*'
+                        name = 'org.jooq.meta.extensions.liquibase.LiquibaseDatabase'
+                        properties {
+                            property {
+                                key = 'scripts'
+                                value = 'db/changelog/db.changelog-master.yaml'
+                            }
+                            property {
+                                key = 'rootPath'
+                                value = "${projectDir}/src/main/resources"
+                            }
+                            property {
+                                key = 'includeLiquibaseTables'
+                                value = 'false'
+                            }
+                            property {
+                                key = 'database'
+                                value = 'POSTGRES'
+                            }
+                        }
+                        forcedTypes {
+                            forcedType {
+                                userType = 'java.util.UUID'
+                                includeExpression = '.*\\.ID'
+                                includeTypes = 'UUID'
+                            }
+                        }
                     }
                     generate {
                         pojos = true
                         daos = false
+                    }
+                    strategy {
+                        name = 'org.jooq.codegen.DefaultGeneratorStrategy'
                     }
                     target {
                         packageName = 'org.example.jooq'
@@ -72,6 +97,8 @@ dependencies {
     jooqGenerator 'org.testcontainers:postgresql:1.20.4'
     jooqGenerator 'org.testcontainers:testcontainers:1.20.4'
     jooqGenerator 'org.liquibase:liquibase-core'
+    jooqGenerator 'org.jooq:jooq-meta-extensions-liquibase:3.19.15'
+    jooqGenerator 'org.yaml:snakeyaml:2.0'
 }
 
 // Task to run Liquibase migrations before jOOQ generation
@@ -81,6 +108,11 @@ tasks.named('generateJooq') {
         .withPathSensitivity(PathSensitivity.RELATIVE)
 
     allInputsDeclared = true
+}
+
+// Make compileJava depend on generateJooq
+tasks.named('compileJava') {
+    dependsOn tasks.named('generateJooq')
 }
 
 test {
