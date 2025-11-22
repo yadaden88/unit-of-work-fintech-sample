@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 public class UnitOfWork {
 
-    private static final int MAX_RETRIES = 5;
+    private static final int MAX_RETRIES = 10;
 
     private final TransactionTemplate transactionTemplate;
 
