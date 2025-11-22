@@ -17,34 +17,12 @@ public class AccountRepository {
     }
 
     public Account save(Account account) {
-        dsl.insertInto(ACCOUNT)
-            .columns(
-                ACCOUNT.ID,
-                ACCOUNT.BALANCE,
-                ACCOUNT.CURRENCY
-            )
-            .values(
-                account.id(),
-                account.balance(),
-                account.currency()
-            )
-            .execute();
-
+        dsl.newRecord(ACCOUNT, account).insert();
         return account;
     }
 
     public List<Account> findAll() {
-        return dsl.select(
-                ACCOUNT.ID,
-                ACCOUNT.BALANCE,
-                ACCOUNT.CURRENCY
-            )
-            .from(ACCOUNT)
-            .fetch(record -> new Account(
-                record.value1(),
-                record.value2(),
-                record.value3()
-            ));
+        return dsl.selectFrom(ACCOUNT).fetchInto(Account.class);
     }
 }
 
