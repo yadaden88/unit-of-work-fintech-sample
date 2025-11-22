@@ -1,5 +1,8 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.4.0'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'nu.studer.jooq' version '9.0'
 }
 
 group = 'org.example'
@@ -10,11 +13,75 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-}
-    implementation 'com.sun.net.httpserver:http:20070405'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.liquibase:liquibase-core'
+    implementation 'org.postgresql:postgresql'
 
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:testcontainers:1.20.4'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    jooqGenerator 'org.postgresql:postgresql'
+}
+
+
+jooq {
+    version = '3.19.15'
+    configurations {
+        main {
+            generateSchemaSourceOnCompilation = false
+            generationTool {
+                jdbc {
+                    driver = 'org.testcontainers.jdbc.ContainerDatabaseDriver'
+                    url = 'jdbc:tc:postgresql:16:///testdb?TC_INITSCRIPT=file:src/test/resources/init-db.sql'
+                    user = 'test'
+                    password = 'test'
+                }
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+                    database {
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        inputSchema = 'public'
+                        includes = '.*'
+                        excludes = 'databasechangelog.*'
+                    }
+                    generate {
+                        pojos = true
+                        daos = false
+                    }
+                    target {
+                        packageName = 'org.example.jooq'
+                        directory = 'build/generated-src/jooq/main'
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Add Testcontainers to jooqGenerator classpath
+configurations {
+    jooqGenerator.extendsFrom implementation
+}
+
+dependencies {
+    jooqGenerator 'org.testcontainers:postgresql:1.20.4'
+    jooqGenerator 'org.testcontainers:testcontainers:1.20.4'
+    jooqGenerator 'org.liquibase:liquibase-core'
+}
+
+// Task to run Liquibase migrations before jOOQ generation
+tasks.named('generateJooq') {
+    inputs.files(fileTree('src/main/resources/db/changelog'))
+        .withPropertyName('migrations')
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+
+    allInputsDeclared = true
+}
 
 test {
     useJUnitPlatform()

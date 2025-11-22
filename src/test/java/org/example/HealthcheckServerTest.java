@@ -1,36 +1,30 @@
 package org.example;
 
-import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@Testcontainers
 class HealthcheckServerTest {
 
+    @Autowired
+    private TestRestTemplate restTemplate;
+
     @Test
-    void healthEndpointReturns200Ok() throws Exception {
-        HttpServer server = HealthcheckServer.start(0); // 0 = ephemeral port
-        int port = server.getAddress().getPort();
+    void healthEndpointReturns200Ok() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/health", String.class);
 
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/health"))
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            assertEquals(200, response.statusCode());
-            assertEquals("OK", response.body());
-        } finally {
-            server.stop(0);
-        }
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("OK", response.getBody());
     }
 }
 
