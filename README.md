@@ -17,6 +17,13 @@ In traditional transaction management, a database transaction is often kept open
 This implementation uses a [Unit of Work](https://martinfowler.com/eaaCatalog/unitOfWork.html) pattern combined with [Optimistic Locking](https://martinfowler.com/eaaCatalog/optimisticOfflineLock.html). Database interactions are deferred until the final moment (commit time), keeping the "lock window" extremely small - typically just a few milliseconds - regardless of how complex the business logic is.
 
 -----
+## 💡 The Backstory
+
+> "I've spent several years in the fintech industry and found this pattern invaluable when building systems that need to sustain significant load and concurrency.
+>
+> When dealing with money, the requirement is absolute: data must remain safe and consistent. However, the pace of delivery in modern fintech is incredibly high. I built this project to demonstrate that you don't have to choose between safety and speed. The right architectural approach should allow developers to move swiftly - enabled by their tools rather than fighting against frameworks - while ensuring that financial data remains integrity-proof under pressure."
+
+---
 
 ## 🏗 Pattern Explanation
 
