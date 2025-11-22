@@ -16,7 +16,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-jooq'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.liquibase:liquibase-core'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'org.postgresql:postgresql'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -35,32 +36,22 @@ jooq {
         main {
             generateSchemaSourceOnCompilation = false
             generationTool {
-                jdbc {
-                    driver = 'org.testcontainers.jdbc.ContainerDatabaseDriver'
-                    url = 'jdbc:tc:postgresql:16:///testdb'
-                    user = 'test'
-                    password = 'test'
-                }
                 generator {
                     name = 'org.jooq.codegen.DefaultGenerator'
                     database {
-                        name = 'org.jooq.meta.extensions.liquibase.LiquibaseDatabase'
+                        name = 'org.jooq.meta.extensions.ddl.DDLDatabase'
                         properties {
                             property {
                                 key = 'scripts'
-                                value = 'db/changelog/db.changelog-master.yaml'
+                                value = 'src/main/resources/db/migration/*.sql'
                             }
                             property {
-                                key = 'rootPath'
-                                value = "${projectDir}/src/main/resources"
+                                key = 'sort'
+                                value = 'flyway'
                             }
                             property {
-                                key = 'includeLiquibaseTables'
-                                value = 'false'
-                            }
-                            property {
-                                key = 'database'
-                                value = 'POSTGRES'
+                                key = 'defaultNameCase'
+                                value = 'lower'
                             }
                         }
                         forcedTypes {
@@ -88,22 +79,14 @@ jooq {
     }
 }
 
-// Add Testcontainers to jooqGenerator classpath
-configurations {
-    jooqGenerator.extendsFrom implementation
-}
-
+// Add jOOQ meta extensions for DDL parsing
 dependencies {
-    jooqGenerator 'org.testcontainers:postgresql:1.20.4'
-    jooqGenerator 'org.testcontainers:testcontainers:1.20.4'
-    jooqGenerator 'org.liquibase:liquibase-core'
-    jooqGenerator 'org.jooq:jooq-meta-extensions-liquibase:3.19.15'
-    jooqGenerator 'org.yaml:snakeyaml:2.0'
+    jooqGenerator 'org.jooq:jooq-meta-extensions:3.19.15'
 }
 
-// Task to run Liquibase migrations before jOOQ generation
+// Track Flyway migration files as inputs
 tasks.named('generateJooq') {
-    inputs.files(fileTree('src/main/resources/db/changelog'))
+    inputs.files(fileTree('src/main/resources/db/migration'))
         .withPropertyName('migrations')
         .withPathSensitivity(PathSensitivity.RELATIVE)
 

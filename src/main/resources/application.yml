@@ -4,8 +4,8 @@ spring:
     username: test
     password: test
     driver-class-name: org.postgresql.Driver
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+  flyway:
+    locations: classpath:db/migration
   jooq:
     sql-dialect: POSTGRES
 
