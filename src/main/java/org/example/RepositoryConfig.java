@@ -20,7 +20,7 @@ public class RepositoryConfig {
         repositories.put(Transfer.class, transferRepository);
     }
 
-    static Map<Class<?>, Repository<?>> getAll() {
+    static Map<Class<?>, Repository<?>> repositories() {
         return copyOf(repositories);
     }
 }

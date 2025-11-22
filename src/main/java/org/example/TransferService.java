@@ -22,7 +22,8 @@ public class TransferService {
     }
 
     public Transfer createTransfer(UUID fromAccountId, UUID toAccountId, long amount) {
-        return new UnitOfWork(transactionTemplate).execute(batch -> {
+        return new UnitOfWork(transactionTemplate).executeRetriable(batch -> {
+            // important to always refetch entities inside the retriable block to always work with the latest version
             var fromAccount = accountRepository.findById(fromAccountId);
             var toAccount = accountRepository.findById(toAccountId);
 

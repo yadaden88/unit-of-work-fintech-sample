@@ -1,38 +1,39 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+
+import static org.example.RepositoryConfig.repositories;
 
 public class Batch {
 
-    private final List<Object> insertOperations = new ArrayList<>();
-    private final List<Object> updateOperations = new ArrayList<>();
+    private final List<Entity> toInsert = new ArrayList<>();
+    private final List<Entity> toUpdate = new ArrayList<>();
 
-    public <T> void insert(T entity) {
-        insertOperations.add(entity);
+    public <T extends Entity> void insert(T entity) {
+        toInsert.add(entity);
     }
 
-    public <T> void update(T entity) {
-        updateOperations.add(entity);
+    public <T extends Entity> void update(T entity) {
+        toUpdate.add(entity);
     }
 
     void executeInserts() {
-        for (Object entity : insertOperations) {
-            Repository<Object> repository = getRepository(entity.getClass());
-            repository.save(entity);
-        }
+        toInsert.stream()
+            .forEach(entity -> getRepository(entity.getClass()).save(entity));
     }
 
     void executeUpdates() {
-        for (Object entity : updateOperations) {
-            Repository<Object> repository = getRepository(entity.getClass());
-            repository.update(entity);
-        }
+        // sorting ensures that updates are executed in a consistent order to prevent deadlocks
+        toUpdate.stream()
+            .sorted(Comparator.comparing(Entity::getId))
+            .forEach(entity -> getRepository(entity.getClass()).update(entity));
     }
 
     @SuppressWarnings("unchecked")
     private <T> Repository<T> getRepository(Class<?> entityClass) {
-        Repository<?> repository = RepositoryConfig.getAll().get(entityClass);
+        var repository = repositories().get(entityClass);
         if (repository == null) {
             throw new IllegalStateException(
                 "No repository registered for entity type: " + entityClass.getName() + ". " +

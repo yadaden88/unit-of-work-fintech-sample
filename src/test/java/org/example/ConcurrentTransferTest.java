@@ -26,7 +26,7 @@ class ConcurrentTransferTest {
 
     private static final int THREADS_NUM = 50;
     private static final int NUMBER_OF_ACCOUNTS = 100;
-    private static final int NUMBER_OF_TRANSFERS = NUMBER_OF_ACCOUNTS * 50;
+    private static final int NUMBER_OF_TRANSFERS = NUMBER_OF_ACCOUNTS * 100;
     private static final long MIN_TRANSFER_AMOUNT = 5L;
     private static final long MAX_TRANSFER_AMOUNT = 50L;
     private static final long SAFETY_BUFFER_MIN = 100L;
@@ -53,13 +53,11 @@ class ConcurrentTransferTest {
     }
 
     private List<Account> createAccounts() {
-        List<Account> accounts = new ArrayList<>();
-        Random random = new Random();
+        var accounts = new ArrayList<Account>();
+        var random = new Random();
 
         for (int i = 0; i < NUMBER_OF_ACCOUNTS; i++) {
-            long balance = random.nextLong(MIN_ACCOUNT_BALANCE, MAX_ACCOUNT_BALANCE + 1);
-            Account account = testHelper.createAccount(balance);
-            accounts.add(account);
+            accounts.add(testHelper.createAccount(random.nextLong(MIN_ACCOUNT_BALANCE, MAX_ACCOUNT_BALANCE + 1)));
         }
 
         return accounts;

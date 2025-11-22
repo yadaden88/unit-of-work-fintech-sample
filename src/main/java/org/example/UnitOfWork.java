@@ -14,14 +14,14 @@ public class UnitOfWork {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public <T> T execute(Function<Batch, T> businessLogic) {
+    public <T> T executeRetriable(Function<Batch, T> idempotentRetriableLogic) {
         int attempt = 0;
         OptimisticLockException lastException = null;
 
         while (attempt < MAX_RETRIES) {
             try {
                 Batch batch = new Batch();
-                T result = businessLogic.apply(batch);
+                T result = idempotentRetriableLogic.apply(batch);
                 commit(batch);
                 return result;
             } catch (OptimisticLockException e) {
@@ -37,11 +37,10 @@ public class UnitOfWork {
     }
 
     private void commit(Batch batch) {
-        transactionTemplate.executeWithoutResult(status -> {
+        transactionTemplate.executeWithoutResult(_ -> {
             try {
                 batch.executeInserts();
                 batch.executeUpdates();
-
             } catch (OptimisticLockException e) {
                 throw e;
             } catch (Exception e) {
