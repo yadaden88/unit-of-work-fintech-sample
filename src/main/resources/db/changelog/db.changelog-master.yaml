@@ -23,3 +23,44 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
+  - changeSet:
+      id: 2
+      author: system
+      changes:
+        - createTable:
+            tableName: transfer
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: from_account_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: to_account_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: transfer
+            baseColumnNames: from_account_id
+            constraintName: fk_transfer_from_account
+            referencedTableName: account
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: transfer
+            baseColumnNames: to_account_id
+            constraintName: fk_transfer_to_account
+            referencedTableName: account
+            referencedColumnNames: id
+
