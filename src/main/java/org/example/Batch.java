@@ -2,17 +2,11 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Batch {
 
-    private final Map<Class<?>, Repository<?>> repositoryMap;
     private final List<Object> insertOperations = new ArrayList<>();
     private final List<Object> updateOperations = new ArrayList<>();
-
-    public Batch(Map<Class<?>, Repository<?>> repositoryMap) {
-        this.repositoryMap = repositoryMap;
-    }
 
     public <T> void insert(T entity) {
         insertOperations.add(entity);
@@ -38,11 +32,11 @@ public class Batch {
 
     @SuppressWarnings("unchecked")
     private <T> Repository<T> getRepository(Class<?> entityClass) {
-        Repository<?> repository = repositoryMap.get(entityClass);
+        Repository<?> repository = RepositoryConfig.getAll().get(entityClass);
         if (repository == null) {
             throw new IllegalStateException(
                 "No repository registered for entity type: " + entityClass.getName() + ". " +
-                    "Make sure to register the repository in UnitOfWork constructor."
+                    "Make sure to register the repository in RepositoryConfig."
             );
         }
         return (Repository<T>) repository;

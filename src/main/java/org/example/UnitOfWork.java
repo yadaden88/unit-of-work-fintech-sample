@@ -2,8 +2,6 @@ package org.example;
 
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 public class UnitOfWork {
@@ -11,15 +9,9 @@ public class UnitOfWork {
     private static final int MAX_RETRIES = 5;
 
     private final TransactionTemplate transactionTemplate;
-    private final Map<Class<?>, Repository<?>> repositoryMap = new HashMap<>();
 
     public UnitOfWork(TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;
-    }
-
-    public <T> UnitOfWork registerRepository(Class<T> entityClass, Repository<T> repository) {
-        repositoryMap.put(entityClass, repository);
-        return this;
     }
 
     public <T> T execute(Function<Batch, T> businessLogic) {
@@ -28,7 +20,7 @@ public class UnitOfWork {
 
         while (attempt < MAX_RETRIES) {
             try {
-                Batch batch = new Batch(repositoryMap);
+                Batch batch = new Batch();
                 T result = businessLogic.apply(batch);
                 commit(batch);
                 return result;

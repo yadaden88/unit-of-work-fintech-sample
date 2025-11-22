@@ -11,25 +11,18 @@ import static java.util.UUID.randomUUID;
 public class TransferService {
 
     private final AccountRepository accountRepository;
-    private final TransferRepository transferRepository;
     private final TransactionTemplate transactionTemplate;
 
     public TransferService(
         AccountRepository accountRepository,
-        TransferRepository transferRepository,
         TransactionTemplate transactionTemplate
     ) {
         this.accountRepository = accountRepository;
-        this.transferRepository = transferRepository;
         this.transactionTemplate = transactionTemplate;
     }
 
     public Transfer createTransfer(UUID fromAccountId, UUID toAccountId, long amount) {
-        var unitOfWork = new UnitOfWork(transactionTemplate)
-            .registerRepository(Account.class, accountRepository)
-            .registerRepository(Transfer.class, transferRepository);
-
-        return unitOfWork.execute(batch -> {
+        return new UnitOfWork(transactionTemplate).execute(batch -> {
             var fromAccount = accountRepository.findById(fromAccountId);
             var toAccount = accountRepository.findById(toAccountId);
 
