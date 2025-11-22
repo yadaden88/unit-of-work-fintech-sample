@@ -19,12 +19,11 @@ public class AccountController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Account createAccount(@RequestBody CreateAccountRequest request) {
-        Account account = new Account(
+        return accountRepository.save(new Account(
             UUID.randomUUID(),
             request.balance(),
             request.currency()
-        );
-        return accountRepository.save(account);
+        ));
     }
     
     @GetMapping

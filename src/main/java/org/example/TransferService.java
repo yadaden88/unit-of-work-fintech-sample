@@ -18,35 +18,21 @@ public class TransferService {
 
     @Transactional
     public Transfer createTransfer(UUID fromAccountId, UUID toAccountId, long amount) {
-        // Fetch complete account entities
-        Account fromAccount = accountRepository.findById(fromAccountId);
-        Account toAccount = accountRepository.findById(toAccountId);
+        var fromAccount = accountRepository.findById(fromAccountId);
+        var toAccount = accountRepository.findById(toAccountId);
 
-        // Perform balance calculations in service layer
-        Account updatedFromAccount = new Account(
-            fromAccount.id(),
-            fromAccount.balance() - amount,
-            fromAccount.currency()
-        );
-        Account updatedToAccount = new Account(
-            toAccount.id(),
-            toAccount.balance() + amount,
-            toAccount.currency()
-        );
+        var updatedFromAccount = fromAccount.withBalance(fromAccount.balance() - amount);
+        var updatedToAccount = toAccount.withBalance(toAccount.balance() + amount);
 
-        // Update accounts through repository
         accountRepository.update(updatedFromAccount);
         accountRepository.update(updatedToAccount);
 
-        // Create transfer record
-        Transfer transfer = new Transfer(
+        return transferRepository.save(new Transfer(
             UUID.randomUUID(),
             fromAccountId,
             toAccountId,
             amount
-        );
-
-        return transferRepository.save(transfer);
+        ));
     }
 }
 
