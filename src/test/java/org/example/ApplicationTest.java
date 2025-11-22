@@ -1,5 +1,7 @@
 package org.example;
 
+import org.jooq.DSLContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +11,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Random;
 
+import static org.example.jooq.Tables.ACCOUNT;
+import static org.example.jooq.Tables.TRANSFER;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -20,7 +24,16 @@ class ApplicationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private DSLContext dsl;
+
     private TestHelper testHelper;
+
+    @BeforeEach
+    void cleanDatabase() {
+        dsl.truncate(TRANSFER).cascade().execute();
+        dsl.truncate(ACCOUNT).cascade().execute();
+    }
 
     @Test
     void createAccount_and_listAccounts_shouldReturnCreatedAccountWithGeneratedId() {

@@ -1,5 +1,7 @@
 package org.example;
 
+import org.jooq.DSLContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static org.example.jooq.Tables.ACCOUNT;
+import static org.example.jooq.Tables.TRANSFER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -37,7 +41,16 @@ class ConcurrentTransferTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private DSLContext dsl;
+
     private TestHelper testHelper;
+
+    @BeforeEach
+    void cleanDatabase() {
+        dsl.truncate(TRANSFER).cascade().execute();
+        dsl.truncate(ACCOUNT).cascade().execute();
+    }
 
     @Test
     void concurrentTransfers_shouldMaintainBalanceConservation() {
