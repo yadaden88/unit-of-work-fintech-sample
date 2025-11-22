@@ -27,7 +27,6 @@ public class AccountRepository implements org.example.Repository<Account> {
     public void update(Account account) {
         int rowsUpdated = dsl.update(ACCOUNT)
             .set(ACCOUNT.BALANCE, account.balance())
-            .set(ACCOUNT.CURRENCY, account.currency())
             .set(ACCOUNT.VERSION, account.version() + 1)
             .where(ACCOUNT.ID.eq(account.id()))
             .and(ACCOUNT.VERSION.eq(account.version()))

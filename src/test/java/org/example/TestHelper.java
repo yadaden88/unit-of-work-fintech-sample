@@ -19,8 +19,8 @@ public class TestHelper {
         this.restTemplate = restTemplate;
     }
 
-    public Account createAccount(long balance, String currency) {
-        Map<String, Object> request = Map.of("balance", balance, "currency", currency);
+    public Account createAccount(long balance) {
+        Map<String, Object> request = Map.of("balance", balance);
         var response = restTemplate.postForEntity("/accounts", request, Account.class);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());

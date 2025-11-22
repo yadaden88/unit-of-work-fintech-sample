@@ -22,17 +22,16 @@ public class AccountController {
         return accountRepository.save(new Account(
             UUID.randomUUID(),
             request.balance(),
-            request.currency(),
-            0L  // Initial version is 0
+            0L
         ));
     }
-    
+
     @GetMapping
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
-    
-    public record CreateAccountRequest(long balance, String currency) {
+
+    public record CreateAccountRequest(long balance) {
     }
 }
 

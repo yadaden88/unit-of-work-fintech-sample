@@ -28,7 +28,7 @@ class ApplicationTest {
         var randomBalance = new Random().nextLong(1000L, 1000000L);
 
         // When - Create account
-        var createdAccount = testHelper.createAccount(randomBalance, "USD");
+        var createdAccount = testHelper.createAccount(randomBalance);
 
         // Then - Verify creation was successful
         assertNotNull(createdAccount.id());
@@ -40,8 +40,7 @@ class ApplicationTest {
         var accountFound = accounts.stream()
             .anyMatch(account ->
                 account.id().equals(createdAccount.id()) &&
-                    account.balance() == randomBalance &&
-                    account.currency().equals("USD")
+                    account.balance() == randomBalance
             );
 
         assertTrue(accountFound, "Created account should exist in the list of all accounts");
@@ -56,8 +55,8 @@ class ApplicationTest {
         var account1InitialBalance = random.nextLong(1000L, 10000L);
         var account2InitialBalance = random.nextLong(1000L, 10000L);
 
-        var account1 = testHelper.createAccount(account1InitialBalance, "USD");
-        var account2 = testHelper.createAccount(account2InitialBalance, "USD");
+        var account1 = testHelper.createAccount(account1InitialBalance);
+        var account2 = testHelper.createAccount(account2InitialBalance);
 
         var account1Id = account1.id();
         var account2Id = account2.id();

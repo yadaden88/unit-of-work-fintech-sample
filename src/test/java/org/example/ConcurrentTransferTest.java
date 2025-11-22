@@ -58,7 +58,7 @@ class ConcurrentTransferTest {
 
         for (int i = 0; i < NUMBER_OF_ACCOUNTS; i++) {
             long balance = random.nextLong(MIN_ACCOUNT_BALANCE, MAX_ACCOUNT_BALANCE + 1);
-            Account account = testHelper.createAccount(balance, "USD");
+            Account account = testHelper.createAccount(balance);
             accounts.add(account);
         }
 
