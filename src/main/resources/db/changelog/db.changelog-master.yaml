@@ -64,3 +64,17 @@ databaseChangeLog:
             referencedTableName: account
             referencedColumnNames: id
 
+  - changeSet:
+      id: 3
+      author: system
+      changes:
+        - addColumn:
+            tableName: account
+            columns:
+              - column:
+                  name: version
+                  type: bigint
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+

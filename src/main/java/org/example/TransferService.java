@@ -1,38 +1,54 @@
 package org.example;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.UUID;
+
+import static java.util.UUID.randomUUID;
 
 @Service
 public class TransferService {
 
     private final AccountRepository accountRepository;
     private final TransferRepository transferRepository;
+    private final TransactionTemplate transactionTemplate;
 
-    public TransferService(AccountRepository accountRepository, TransferRepository transferRepository) {
+    public TransferService(
+        AccountRepository accountRepository,
+        TransferRepository transferRepository,
+        TransactionTemplate transactionTemplate
+    ) {
         this.accountRepository = accountRepository;
         this.transferRepository = transferRepository;
+        this.transactionTemplate = transactionTemplate;
     }
 
-    @Transactional
     public Transfer createTransfer(UUID fromAccountId, UUID toAccountId, long amount) {
-        var fromAccount = accountRepository.findById(fromAccountId);
-        var toAccount = accountRepository.findById(toAccountId);
+        var unitOfWork = new UnitOfWork(transactionTemplate)
+            .registerRepository(Account.class, accountRepository)
+            .registerRepository(Transfer.class, transferRepository);
 
-        var updatedFromAccount = fromAccount.withBalance(fromAccount.balance() - amount);
-        var updatedToAccount = toAccount.withBalance(toAccount.balance() + amount);
+        return unitOfWork.execute(batch -> {
+            var fromAccount = accountRepository.findById(fromAccountId);
+            var toAccount = accountRepository.findById(toAccountId);
 
-        accountRepository.update(updatedFromAccount);
-        accountRepository.update(updatedToAccount);
+            var updatedFromAccount = fromAccount.withBalance(fromAccount.balance() - amount);
+            var updatedToAccount = toAccount.withBalance(toAccount.balance() + amount);
 
-        return transferRepository.save(new Transfer(
-            UUID.randomUUID(),
-            fromAccountId,
-            toAccountId,
-            amount
-        ));
+            var transfer = new Transfer(
+                randomUUID(),
+                fromAccountId,
+                toAccountId,
+                amount
+            );
+
+            batch.update(updatedFromAccount);
+            batch.update(updatedToAccount);
+            batch.insert(transfer);
+
+            return transfer;
+        });
     }
 }
 

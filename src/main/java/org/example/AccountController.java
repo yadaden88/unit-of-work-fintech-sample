@@ -22,7 +22,8 @@ public class AccountController {
         return accountRepository.save(new Account(
             UUID.randomUUID(),
             request.balance(),
-            request.currency()
+            request.currency(),
+            0L  // Initial version is 0
         ));
     }
     
