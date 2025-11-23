@@ -6,13 +6,8 @@ import java.util.List;
 
 public class Batch {
 
-    private final RepositoryRegistry repositoryRegistry;
     private final List<Entity> toInsert = new ArrayList<>();
     private final List<Entity> toUpdate = new ArrayList<>();
-
-    public Batch(RepositoryRegistry repositoryRegistry) {
-        this.repositoryRegistry = repositoryRegistry;
-    }
 
     public <T extends Entity> void insert(T entity) {
         toInsert.add(entity);
@@ -22,12 +17,12 @@ public class Batch {
         toUpdate.add(entity);
     }
 
-    void executeInserts() {
+    public void executeInserts(RepositoryRegistry repositoryRegistry) {
         toInsert.stream()
             .forEach(entity -> repositoryRegistry.getRepository(entity.getClass()).save(entity));
     }
 
-    void executeUpdates() {
+    public void executeUpdates(RepositoryRegistry repositoryRegistry) {
         toUpdate.stream()
             .sorted(Comparator.comparing(Entity::getId))
             .forEach(entity -> repositoryRegistry.getRepository(entity.getClass()).update(entity));

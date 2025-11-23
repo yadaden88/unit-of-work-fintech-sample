@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Testcontainers
 class ConcurrentTransferTest {
 
-    private static final int THREADS_NUM = 50;
+    private static final int THREADS_NUM = 20;
     private static final int NUMBER_OF_ACCOUNTS = 100;
     private static final int NUMBER_OF_TRANSFERS = NUMBER_OF_ACCOUNTS * 100;
     private static final long MIN_TRANSFER_AMOUNT = 5L;

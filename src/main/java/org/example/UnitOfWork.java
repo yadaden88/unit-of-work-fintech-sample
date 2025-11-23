@@ -24,7 +24,7 @@ public class UnitOfWork {
 
         while (attempt < MAX_RETRIES) {
             try {
-                Batch batch = new Batch(repositoryRegistry);
+                Batch batch = new Batch();
                 T result = idempotentRetriableLogic.apply(batch);
                 commit(batch);
                 return result;
@@ -43,8 +43,8 @@ public class UnitOfWork {
     private void commit(Batch batch) {
         transactionTemplate.executeWithoutResult(_ -> {
             try {
-                batch.executeInserts();
-                batch.executeUpdates();
+                batch.executeInserts(repositoryRegistry);
+                batch.executeUpdates(repositoryRegistry);
             } catch (OptimisticLockException e) {
                 throw e;
             } catch (Exception e) {
