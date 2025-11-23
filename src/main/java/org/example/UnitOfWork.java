@@ -24,7 +24,7 @@ public class UnitOfWork {
 
         while (attempt < MAX_RETRIES) {
             try {
-                Batch batch = new Batch();
+                var batch = new Batch();
                 T result = idempotentRetriableLogic.apply(batch);
                 commit(batch);
                 return result;

@@ -33,10 +33,8 @@ class ConcurrentTransferTest {
     private static final int NUMBER_OF_TRANSFERS = NUMBER_OF_ACCOUNTS * 100;
     private static final long MIN_TRANSFER_AMOUNT = 5L;
     private static final long MAX_TRANSFER_AMOUNT = 50L;
-    private static final long SAFETY_BUFFER_MIN = 100L;
-    private static final long SAFETY_BUFFER_MAX = 10_000L;
-    private static final long MIN_ACCOUNT_BALANCE = MAX_TRANSFER_AMOUNT * NUMBER_OF_TRANSFERS + SAFETY_BUFFER_MIN;
-    private static final long MAX_ACCOUNT_BALANCE = MAX_TRANSFER_AMOUNT * NUMBER_OF_TRANSFERS + SAFETY_BUFFER_MAX;
+    private static final long MIN_ACCOUNT_BALANCE = MAX_TRANSFER_AMOUNT * NUMBER_OF_TRANSFERS + 100L;
+    private static final long MAX_ACCOUNT_BALANCE = MAX_TRANSFER_AMOUNT * NUMBER_OF_TRANSFERS + 10_000L;
 
     @Autowired
     private TestRestTemplate restTemplate;

@@ -1,8 +1,9 @@
 package org.example;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+
+import static java.util.Comparator.comparing;
 
 public class Batch {
 
@@ -18,13 +19,12 @@ public class Batch {
     }
 
     public void executeInserts(RepositoryRegistry repositoryRegistry) {
-        toInsert.stream()
-            .forEach(entity -> repositoryRegistry.getRepository(entity.getClass()).save(entity));
+        toInsert.forEach(entity -> repositoryRegistry.getRepository(entity.getClass()).save(entity));
     }
 
     public void executeUpdates(RepositoryRegistry repositoryRegistry) {
         toUpdate.stream()
-            .sorted(Comparator.comparing(Entity::getId))
+            .sorted(comparing(Entity::getId))
             .forEach(entity -> repositoryRegistry.getRepository(entity.getClass()).update(entity));
     }
 
