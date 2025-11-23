@@ -1,7 +1,6 @@
 package org.example;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.UUID;
 
@@ -11,19 +10,18 @@ import static java.util.UUID.randomUUID;
 public class TransferService {
 
     private final AccountRepository accountRepository;
-    private final TransactionTemplate transactionTemplate;
+    private final UnitOfWork unitOfWork;
 
     public TransferService(
         AccountRepository accountRepository,
-        TransactionTemplate transactionTemplate
+        UnitOfWork unitOfWork
     ) {
         this.accountRepository = accountRepository;
-        this.transactionTemplate = transactionTemplate;
+        this.unitOfWork = unitOfWork;
     }
 
     public Transfer createTransfer(UUID fromAccountId, UUID toAccountId, long amount) {
-        return new UnitOfWork(transactionTemplate).executeRetriable(batch -> {
-            // important to always refetch entities inside the retriable block to always work with the latest version
+        return unitOfWork.executeRetriable(batch -> {
             var fromAccount = accountRepository.findById(fromAccountId);
             var toAccount = accountRepository.findById(toAccountId);
 

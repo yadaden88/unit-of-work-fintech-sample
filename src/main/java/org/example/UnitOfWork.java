@@ -1,17 +1,21 @@
 package org.example;
 
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.function.Function;
 
+@Component
 public class UnitOfWork {
 
     private static final int MAX_RETRIES = 10;
 
     private final TransactionTemplate transactionTemplate;
+    private final RepositoryRegistry repositoryRegistry;
 
-    public UnitOfWork(TransactionTemplate transactionTemplate) {
+    public UnitOfWork(TransactionTemplate transactionTemplate, RepositoryRegistry repositoryRegistry) {
         this.transactionTemplate = transactionTemplate;
+        this.repositoryRegistry = repositoryRegistry;
     }
 
     public <T> T executeRetriable(Function<Batch, T> idempotentRetriableLogic) {
@@ -20,7 +24,7 @@ public class UnitOfWork {
 
         while (attempt < MAX_RETRIES) {
             try {
-                Batch batch = new Batch();
+                Batch batch = new Batch(repositoryRegistry);
                 T result = idempotentRetriableLogic.apply(batch);
                 commit(batch);
                 return result;
