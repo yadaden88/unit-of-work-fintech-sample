@@ -24,17 +24,13 @@ public class Batch {
 
     void executeInserts() {
         toInsert.stream()
-            .forEach(entity -> getRepository(entity.getClass()).save(entity));
+            .forEach(entity -> repositoryRegistry.getRepository(entity.getClass()).save(entity));
     }
 
     void executeUpdates() {
         toUpdate.stream()
             .sorted(Comparator.comparing(Entity::getId))
-            .forEach(entity -> getRepository(entity.getClass()).update(entity));
-    }
-
-    private <T> Repository<T> getRepository(Class<?> entityClass) {
-        return repositoryRegistry.getRepository(entityClass);
+            .forEach(entity -> repositoryRegistry.getRepository(entity.getClass()).update(entity));
     }
 
 }
